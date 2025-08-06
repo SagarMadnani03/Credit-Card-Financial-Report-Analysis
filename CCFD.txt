@@ -1,0 +1,96 @@
+Credit Card Financial Dashboard:
+
+1. Prepared CSV files.
+
+2. Import the CSV files in DB.
+
+3. Import the data from SQL to Power BI.
+
+------------------Steps------------------
+No Data cleaning, as the data was already cleaned and preprocessed with proper formats.
+
+Just we need to load the data into tables.
+
+After that we can classify our age and income columns, so that it can be easy for visualization.
+
+DAX Queries:
+-----------------------
+AgeGroup = SWITCH(
+ TRUE(),
+ 'cust_detail'[customer_age] < 30, "20-30",
+ 'cust_detail'[customer_age] >= 30 && 'cust_detail'[customer_age] < 40, "30-40",
+ 'cust_detail'[customer_age] >= 40 && 'cust_detail'[customer_age] < 50, "40-50",
+ 'cust_detail'[customer_age] >= 50 && 'cust_detail'[customer_age] < 60, "50-60",
+ 'cust_detail'[customer_age] >= 60, "60+",
+ "unknown"
+ )
+
+IncomeGroup = SWITCH(
+ TRUE(),
+ 'cust_detail'[income] < 35000, "Low",
+ 'cust_detail'[income] >= 35000 && 'cust_detail'[income] <70000, "Med",
+ 'cust_detail'[income] >= 70000, "High",
+ "unknown"
+)
+------------------
+week_num2 = WEEKNUM('cc_detail'[week_start_date])
+
+
+Revenue = 'cc_detail'[annual_fees] + 'cc_detail'[total_trans_amt] + 'cc_detail'[interest_earned]
+
+Current_week_Reveneue = CALCULATE(
+ SUM('cc_detail'[Revenue]),
+ FILTER(
+ ALL('cc_detail'),
+ 'cc_detail'[week_num2] = MAX('cc_detail'[week_num2])))
+
+
+Previous_week_Reveneue = CALCULATE(
+ SUM('cc_detail'[Revenue]),
+ FILTER(
+ ALL('cc_detail'),
+ 'cc_detail'[week_num2] = MAX('cc_detail'[week_num2])-1))
+
+Week_On_Week_Revenue
+
+WoW_Revenue = DIVIDE(([Current_week_Reveneue]-[Previous_week_Reveneue]),[Previous_week_Reveneue]) 
+----------------------------------------------------------------------------------------------------
+#00ACA9 -- green color
+
+#6CD2D2 -- bg green color
+
+-------------------------------------------
+Here in my project i have used a slicer which can just one color, but to differentiate among categories, we can use treemap as a slicer which can categorize different values easily.
+
+Learnings:
+
+In this project, we came to know about the refresh util in powerBI, by manual refresh we can update our power bi reports.
+First we have to normally import the data to existing table so that it can append.
+
+Suggestions:
+We can use manual/auto refresh to update the reports.We can make use of views instead of fetching it from base tables.
+
+Challenges:
+
+The power bi slicer visual was not visible in report post refresh util, and by changing the data type of week_start_date field from date time to simply date.
+The visual was then brought back to its original form and can fetch easily the dates.
+
+Insight Generation:
+WoW change:
+• Revenue increased by 28.8%,
+• Total Transaction Amt & Count increased by xx% & xx%
+• Customer count increased by xx%
+Overview YTD:
+• Overall revenue is 57M
+• Total interest is 8M
+• Total transaction amount is 46M
+• Male customers are contributing more in revenue 31M, female 26M
+• Blue & Silver credit card are contributing to 93% of overall
+transactions
+• TX, NY & CA is contributing to 68%
+• Overall Activation rate is 57.5%
+• Overall Delinquent rate is 6.06%
+
+Output:
+
+https://app.powerbi.com/groups/me/reports/1f9a5757-f1cb-4235-af82-df2d61879ee3/042d00483eb874e5621d?experience=power-bi
